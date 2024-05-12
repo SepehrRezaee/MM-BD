@@ -57,17 +57,20 @@ batch_size = 20
 # model.load_state_dict(torch.load('./' + args.model_dir + '/model.pth'))
 # model.eval()
 
-num_classes = 10  # Define the number of output classes
+num_classes = 10  
 
 # Initialize the model with pretrained weights
 model = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1)
 
-# Replace the head of the model for your specific number of classes
-if hasattr(model, 'head'):
-    in_features = model.head.in_features
-    model.head = nn.Linear(in_features, num_classes)
+# Print the model to see its structure (helpful for debugging)
+print(model)
+
+# Assuming the classifier is correctly named in the printed structure:
+if hasattr(model, 'heads'):
+    in_features = model.heads.fc.in_features  # Adjust 'fc' if the actual name differs
+    model.heads.fc = nn.Linear(in_features, num_classes)
 else:
-    raise AttributeError("The model does not have an attribute 'head'")
+    raise AttributeError("The model does not have a classifier attribute under 'heads'")
 
 # Add image resizing as the first step in the model
 net = nn.Sequential(

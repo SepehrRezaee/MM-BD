@@ -21,7 +21,9 @@ import random
 import copy as cp
 import numpy as np
 
-from src.resnet import ResNet18
+# from src.resnet import ResNet18
+
+from transformers import ViTForImageClassification
 
 
 parser = argparse.ArgumentParser(description='UnivBD method')
@@ -41,19 +43,38 @@ NSTEP = 300
 TC = 6
 batch_size = 20
 
-# Load model
-model = ResNet18()
+# # Load model
+# model = ResNet18()
+# model = model.to(device)
+# criterion = nn.CrossEntropyLoss()
+
+# #if device == 'cuda':
+# #    model = torch.nn.DataParallel(model)
+# #    cudnn.benchmark = True
+
+# model.load_state_dict(torch.load('./' + args.model_dir + '/model.pth'))
+# model.eval()
+
+
+# Define the device to use (CUDA if available)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Initialize the Vision Transformer model with the configuration for 10 classes
+# Assuming the ViT-B/16 model and the necessary transformers library are installed
+model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224-in21k', num_labels=10)
+
+# Move the model to the specified device
 model = model.to(device)
+
+# Define the loss criterion
 criterion = nn.CrossEntropyLoss()
 
-#if device == 'cuda':
-#    model = torch.nn.DataParallel(model)
-#    cudnn.benchmark = True
-
+# Load the state dict from the specified file
+# Make sure 'args.model_dir' is defined and points to the directory containing 'model.pth'
 model.load_state_dict(torch.load('./' + args.model_dir + '/model.pth'))
+
+# Set the model to evaluation mode
 model.eval()
-
-
 
 def lr_scheduler(iter_idx):
     lr = 1e-2

@@ -11,6 +11,7 @@ import torchvision
 import torchvision.transforms as transforms
 from torchvision import models
 from torchvision.transforms import Resize
+from torchvision.models import vit_b_16, ViT_B_16_Weights
 
 import os
 import sys
@@ -58,11 +59,15 @@ batch_size = 20
 
 num_classes = 10  # Define the number of output classes
 
-# Initialize the model
-model = models.vit_b_16(pretrained=True)  # Loads the pretrained Vision Transformer B/16 model
+# Initialize the model with pretrained weights
+model = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1)
 
 # Replace the head of the model for your specific number of classes
-model.heads = nn.Linear(model.heads.in_features, num_classes)
+if hasattr(model, 'head'):
+    in_features = model.head.in_features
+    model.head = nn.Linear(in_features, num_classes)
+else:
+    raise AttributeError("The model does not have an attribute 'head'")
 
 # Add image resizing as the first step in the model
 net = nn.Sequential(
@@ -70,13 +75,16 @@ net = nn.Sequential(
     model
 )
 
-checkpoint = torch.load('.' + args.model_dir + '/model.pth')
+# Load the checkpoint
+checkpoint_path = '.' + args.model_dir + '/model.pth'
+checkpoint = torch.load(checkpoint_path, map_location=device)
 
 # Load the state dict into the model
 net.load_state_dict(checkpoint['model'])
 
 # Set the model to evaluation mode
 net.eval()
+
 
 # Define the device to use (CUDA if available)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -82,9 +82,10 @@ net = nn.Sequential(
     model
 )
 
-# Load the checkpoint
-checkpoint_path = "./" + args.model_dir + '/model.pth'
-checkpoint = torch.load(checkpoint_path, map_location=device)
+base_dir = '/kaggle/working/MM-BD/model13/model.pt'
+# checkpoint_path = os.path.join(base_dir, args.model_dir, 'model.pth')
+print("Loading checkpoint from:", checkpoint_path)
+checkpoint = torch.load(base_dir, map_location=device)
 
 # Load the state dict into the model
 net.load_state_dict(checkpoint['model'])

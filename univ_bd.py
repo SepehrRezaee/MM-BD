@@ -9,6 +9,8 @@ import torch.backends.cudnn as cudnn
 
 import torchvision
 import torchvision.transforms as transforms
+from torchvision import models
+from torchvision.transforms import Resize
 
 import os
 import sys
@@ -23,7 +25,7 @@ import numpy as np
 
 # from src.resnet import ResNet18
 
-from transformers import ViTForImageClassification
+# from transformers import ViTForImageClassification
 
 parser = argparse.ArgumentParser(description='UnivBD method')
 parser.add_argument('--model_dir', default='model1', help='model path')
@@ -54,27 +56,30 @@ batch_size = 20
 # model.load_state_dict(torch.load('./' + args.model_dir + '/model.pth'))
 # model.eval()
 
+num_classes = 10  # Define the number of output classes
+
+# Initialize the model
+model = models.vit_b_16(pretrained=True)  # Loads the pretrained Vision Transformer B/16 model
+
+# Replace the head of the model for your specific number of classes
+model.heads = nn.Linear(model.heads.in_features, num_classes)
+
+# Add image resizing as the first step in the model
+net = nn.Sequential(
+    Resize((224, 224)),  # Resize images to the expected input size
+    model
+)
+
+checkpoint = torch.load('.' + args.model_dir + '/model.pth')
+
+# Load the state dict into the model
+net.load_state_dict(checkpoint['model'])
+
+# Set the model to evaluation mode
+net.eval()
 
 # Define the device to use (CUDA if available)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Initialize the Vision Transformer model with the configuration for 10 classes
-# Assuming the ViT-B/16 model and the necessary transformers library are installed
-model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224-in21k', num_labels=10)
-
-# Move the model to the specified device
-model = model.to(device)
-
-# Define the loss criterion
-criterion = nn.CrossEntropyLoss()
-
-# Load the state dict from the specified file
-# Make sure 'args.model_dir' is defined and points to the directory containing 'model.pth'
-model.load_state_dict(torch.load('.' + args.model_dir + '/model.pth'))
-
-# Set the model to evaluation mode
-model.eval()
-
 
 
 def lr_scheduler(iter_idx):
@@ -86,7 +91,8 @@ def lr_scheduler(iter_idx):
 res = []
 for t in range(10):
 
-    images = torch.rand([30, 3, 32, 32]).to(device)
+    # images = torch.rand([30, 3, 32, 32]).to(device)
+    images = torch.rand([30, 3, 224, 224]).to(device)
     images.requires_grad = True
 
     last_loss = 1000

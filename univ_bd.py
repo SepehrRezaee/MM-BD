@@ -79,7 +79,7 @@ net = nn.Sequential(
 )
 
 # Load the checkpoint
-checkpoint_path = '.' + args.model_dir + '/model.pth'
+checkpoint_path = args.model_dir + '/model.pth'
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 # Load the state dict into the model

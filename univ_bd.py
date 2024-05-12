@@ -70,7 +70,7 @@ criterion = nn.CrossEntropyLoss()
 
 # Load the state dict from the specified file
 # Make sure 'args.model_dir' is defined and points to the directory containing 'model.pth'
-model.load_state_dict(torch.load('./' + args.model_dir + '/model.pth'))
+model.load_state_dict(torch.load('.' + args.model_dir + '/model.pth'))
 
 # Set the model to evaluation mode
 model.eval()

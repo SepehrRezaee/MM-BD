@@ -125,7 +125,7 @@ r_null = np.delete(stats, ind_max)
 
 shape, loc, scale = gamma.fit(r_null)
 pv = 1 - pow(gamma.cdf(r_eval, a=shape, loc=loc, scale=scale), len(r_null)+1)
-print(pv)
+print(f'pv is {pv}')
 print(args.model_dir)
 if pv > 0.05:
     print('No Attack!')

@@ -1,6 +1,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+import sys
+
+sys.path.append('/kaggle/working/MM-BD')
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -79,7 +83,7 @@ net = nn.Sequential(
 )
 
 # Load the checkpoint
-checkpoint_path = args.model_dir + '/model.pth'
+checkpoint_path = "./" + args.model_dir + '/model.pth'
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 # Load the state dict into the model
